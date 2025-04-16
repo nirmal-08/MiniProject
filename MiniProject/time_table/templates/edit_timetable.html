@@ -1,0 +1,670 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Timetable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header & Navigation */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 i {
+            font-size: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: var(--transition);
+            background-color: var(--white);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            gap: 8px;
+        }
+
+        .btn i {
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background-color: #3ab5d9;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background-color: #e5177a;
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f3ff;
+        }
+
+        /* Time slot cells */
+        .time-slot {
+            min-width: 150px;
+        }
+
+        .time-slot select {
+            margin-bottom: 8px;
+        }
+
+        /* Messages */
+        .messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert i {
+            font-size: 18px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .time-slot-container {
+        min-height: 120px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+        transition: all 0.2s ease;
+    }
+
+    .time-slot-container:hover {
+        background: #e9ecef;
+    }
+
+    .course-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 8px;
+        margin-bottom: 8px;
+        cursor: move;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .course-card:hover {
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        border-color: #4361ee;
+    }
+
+    .course-card-header {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #4361ee;
+    }
+
+    .course-card-details {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .empty-slot {
+        color: #adb5bd;
+        font-size: 12px;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .drag-ghost {
+        opacity: 0.5;
+        background: #cfe2ff;
+    }
+
+    .drag-chosen {
+        background: #e7f1ff;
+    }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+
+        /* Custom select styling */
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: "▼";
+            font-size: 12px;
+            color: var(--gray);
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        /* Teacher workload indicator */
+        .workload-indicator {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .workload-bar {
+            flex-grow: 1;
+            height: 4px;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .workload-progress {
+            height: 100%;
+            background-color: var(--primary);
+        }
+
+        /* Tooltip */
+        [data-tooltip] {
+            position: relative;
+            cursor: pointer;
+        }
+
+        [data-tooltip]:hover::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+            margin-bottom: 8px;
+        }
+
+        [data-tooltip]:hover::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--dark) transparent transparent transparent;
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-calendar-alt"></i> Timetable Editor</h1>
+            <div class="btn-group">
+                {% if selected_dept %}
+                <a href="{% url 'generate_timetable_image' selected_dept.id %}" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Export
+                </a>
+                {% endif %}
+                <a href="{% url 'add_teacher' %}" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Add Teacher
+                </a>
+                <a href="{% url 'add_course' %}" class="btn btn-primary">
+                    <i class="fas fa-book"></i> Add Course
+                </a>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-error{% endif %}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-edit"></i> Edit Timetable</h2>
+                <form action="{% url 'auto_allocate' %}" method="post" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-magic"></i> Auto Allocate
+                    </button>
+                </form>
+            </div>
+
+            <form method="get" class="form-group">
+                <label for="department-select">Select Department</label>
+                <div class="select-wrapper">
+                    <select id="department-select" name="department" onchange="this.form.submit()">
+                        <option value="">-- Select Department --</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if dept == selected_dept %}selected{% endif %}>{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+
+            {% if selected_dept %}
+            <form method="POST" id="timetable-form">
+                {% csrf_token %}
+                <input type="hidden" name="department" value="{{ selected_dept.id }}">
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time / Day</th>
+                                {% for day in days %}
+                                    <th>{{ day }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for time in time_slots %}
+                            <tr>
+                                <td>{{ time }}</td>
+                                {% for day in days %}
+                                <td class="time-slot">
+                                    {% with slot=slots_dict|get_item:day|get_item:time %}
+                                    <div class="form-group">
+                                        <div class="select-wrapper">
+                                            <select name="{{ day }}_{{ time }}_course" class="course-select"
+                                                    data-day="{{ day }}" data-time="{{ time }}"
+                                                    onchange="updateWorkloadIndicator(this)">
+                                                <option value="">-- Select Course --</option>
+                                                {% for course in courses %}
+                                                <option value="{{ course.id }}"
+                                                        {% if slot and slot.course and course.id == slot.course.id %}selected{% endif %}
+                                                        data-teacher-id="{{ course.teacher.id }}"
+                                                        data-teacher-name="{{ course.teacher.name }}"
+                                                        data-max-lectures="{{ course.teacher.max_lectures }}"
+                                                        title="{{ course.teacher.name }} - Max {{ course.teacher.max_lectures }} lectures">
+                                                    {{ course.name }} ({{ course.teacher.name }})
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="workload-indicator" id="workload-{{ day }}-{{ time }}">
+                                            <span class="workload-text">Select a course</span>
+                                            <div class="workload-bar">
+                                                <div class="workload-progress" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="select-wrapper">
+                                            <select name="{{ day }}_{{ time }}_room">
+                                                <option value="">-- Select Room --</option>
+                                                {% for room in rooms %}
+                                                <option value="{{ room.id }}"
+                                                        {% if slot and slot.room and room.id == slot.room.id %}selected{% endif %}
+                                                        data-tooltip="Capacity: {{ room.capacity|default:'N/A' }}">
+                                                    {{ room.number }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {% endwith %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="btn-group" style="justify-content: center;">
+                    <button type="submit" class="btn btn-primary" style="padding: 14px 28px;">
+                        <i class="fas fa-save"></i> Save Timetable
+                    </button>
+                    <button type="reset" class="btn btn-danger" onclick="clearAllSelections()">
+                        <i class="fas fa-trash-alt"></i> Clear All
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div style="text-align: center; padding: 40px 20px; color: var(--gray);">
+                <i class="fas fa-calendar-plus" style="font-size: 48px; margin-bottom: 20px; color: #ddd;"></i>
+                <h3>Select a department to edit timetable</h3>
+                <p>Or create a new department if none exists</p>
+                <a href="{% url 'add_department' %}" class="btn btn-primary" style="margin-top: 20px;">
+                    <i class="fas fa-plus"></i> Add Department
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Initialize teacher workload tracking
+        const teacherWorkloads = {};
+
+        // Initialize from existing selections
+        document.querySelectorAll('.course-select').forEach(select => {
+            if (select.value) {
+                const teacherId = select.options[select.selectedIndex].dataset.teacherId;
+                teacherWorkloads[teacherId] = (teacherWorkloads[teacherId] || 0) + 1;
+            }
+        });
+
+        // Update workload indicators
+        function updateWorkloadIndicator(selectElement) {
+            const day = selectElement.dataset.day;
+            const time = selectElement.dataset.time;
+            const workloadElement = document.getElementById(`workload-${day}-${time}`);
+
+            if (selectElement.value) {
+                const teacherId = selectElement.options[selectElement.selectedIndex].dataset.teacherId;
+                const teacherName = selectElement.options[selectElement.selectedIndex].dataset.teacherName;
+                const maxLectures = parseInt(selectElement.options[selectElement.selectedIndex].dataset.maxLectures);
+
+                // Count current workload for this teacher
+                const currentCount = Array.from(document.querySelectorAll('.course-select'))
+                    .filter(s => s.value && s.options[s.selectedIndex].dataset.teacherId === teacherId)
+                    .length;
+
+                const percentage = Math.min(100, (currentCount / maxLectures) * 100);
+
+                // Update the indicator
+                workloadElement.innerHTML = `
+                    <span class="workload-text">${teacherName}: ${currentCount}/${maxLectures}</span>
+                    <div class="workload-bar">
+                        <div class="workload-progress" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+
+                // Color based on workload
+                const progressBar = workloadElement.querySelector('.workload-progress');
+                if (percentage >= 90) {
+                    progressBar.style.backgroundColor = 'var(--danger)';
+                } else if (percentage >= 75) {
+                    progressBar.style.backgroundColor = 'var(--warning)';
+                } else {
+                    progressBar.style.backgroundColor = 'var(--primary)';
+                }
+            } else {
+                workloadElement.innerHTML = `
+                    <span class="workload-text">Select a course</span>
+                    <div class="workload-bar">
+                        <div class="workload-progress" style="width: 0%"></div>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize all workload indicators
+        function initializeWorkloadIndicators() {
+            document.querySelectorAll('.course-select').forEach(select => {
+                updateWorkloadIndicator(select);
+            });
+        }
+
+        // Clear all selections
+        function clearAllSelections() {
+            if (confirm('Are you sure you want to clear all selections?')) {
+                document.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0;
+                    updateWorkloadIndicator(select);
+                });
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWorkloadIndicators();
+
+            // Auto-close messages after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.style.display = 'none';
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
